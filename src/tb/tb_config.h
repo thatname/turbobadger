@@ -15,7 +15,7 @@
 	the various settings in g_tb_debug. A settings window can be
 	shown by calling ShowDebugInfoSettingsWindow. */
 #ifndef NDEBUG
-#define TB_RUNTIME_DEBUG_INFO
+//#define TB_RUNTIME_DEBUG_INFO
 #endif
 
 #ifndef NDEBUG
@@ -32,7 +32,7 @@
 //#define TB_PREMULTIPLIED_ALPHA
 
 /** Enable to support TBBF fonts (Turbo Badger Bitmap Fonts) */
-#define TB_FONT_RENDERER_TBBF
+//#define TB_FONT_RENDERER_TBBF
 
 /** Enable to support truetype fonts using freetype. */
 //#define TB_FONT_RENDERER_FREETYPE
@@ -42,12 +42,12 @@
 	app, that you know work! Freetype generates much prettier glyphs (using
 	hinting) but is a lot larger. This implementation is kept here as alternative
 	as long as it compiles. */
-//#define TB_FONT_RENDERER_STB
+#define TB_FONT_RENDERER_STB
 
 /** Enable to support image loading using stb_image.c (http://nothings.org/).
 	It's a *very unsafe* image library. Use only with images distributed with
 	your app, that you know work! */
-#define TB_IMAGE_LOADER_STB
+//#define TB_IMAGE_LOADER_STB
 
 /** Enable to get TBRendererBatcher, an helper class for renderers that
 	implements batching of draw operations. Subclasses of TBRendererBatcher
@@ -56,22 +56,22 @@
 
 /** Enable renderer using OpenGL. This renderer depends on TB_RENDERER_BATCHER.
 	It is using GL version 1.1, */
-#define TB_RENDERER_GL
+//#define TB_RENDERER_GL
 
 /** Enable renderer using OpenGL ES. This renderer depends on TB_RENDERER_GL.
 	It is using GL ES version 1. */
 //#define TB_RENDERER_GLES_1
 
 /** The width of the font glyph cache. Must be a power of two. */
-#define TB_GLYPH_CACHE_WIDTH 512
+#define TB_GLYPH_CACHE_WIDTH 1024
 
 /** The height of the font glyph cache. Must be a power of two. */
-#define TB_GLYPH_CACHE_HEIGHT 512
+#define TB_GLYPH_CACHE_HEIGHT 1024
 
 // == Optional features ===========================================================
 
 /** Enable support for TBImage, TBImageManager, TBImageWidget. */
-#define TB_IMAGE
+//#define TB_IMAGE
 
 // == Additional configuration of platform implementations ========================
 

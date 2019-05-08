@@ -12,6 +12,7 @@
 
 using namespace tb;
 
+#define STBTT_STATIC
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
 #include "thirdparty/stb_truetype.h"
 

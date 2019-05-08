@@ -1591,9 +1591,63 @@ bool TBWidget::InvokeWheel(int x, int y, int delta_x, int delta_y, MODIFIER_KEYS
 
 	return false;
 }
+static int toupr_ascii(int ascii)
+{
+	if (ascii >= 'a' && ascii <= 'z')
+		return ascii + 'A' - 'a';
+	return ascii;
+}
+bool TBWidget::InvokeShortcut(int key, SPECIAL_KEY special_key, MODIFIER_KEYS modifierkeys, bool down)
+{
+#ifdef TB_TARGET_MACOSX
+	bool shortcut_key = (modifierkeys & TB_SUPER) ? true : false;
+#else
+	bool shortcut_key = (modifierkeys & TB_CTRL) ? true : false;
+#endif
+	if (!TBWidget::focused_widget || !down || !shortcut_key)
+		return false;
+	bool reverse_key = (modifierkeys & TB_SHIFT) ? true : false;
+	int upper_key = toupr_ascii(key);
+	TBID id;
+	if (upper_key == 27) // SDL_SCANCODE_X = 27
+		id = TBIDC("cut");
+	else if (upper_key == 6 || special_key == TB_KEY_INSERT) // SDL_SCANCODE_C = 6
+		id = TBIDC("copy");
+	else if (upper_key == 25 || (special_key == TB_KEY_INSERT && reverse_key)) // SDL_SCANCODE_V = 25
+		id = TBIDC("paste");
+	else if (upper_key == 4) // SDL_SCANCODE_A = 4
+		id = TBIDC("selectall");
+	else if (upper_key == 29 || upper_key == 28) //SDL_SCANCODE_Z = 29 SDL_SCANCODE_Y = 28
+	{
+		bool undo = upper_key == 29; //SDL_SCANCODE_Z = 29
+		if (reverse_key)
+			undo = !undo;
+		id = undo ? TBIDC("undo") : TBIDC("redo");
+	}
+	else if (upper_key == 17) // SDL_SCANCODE_N = 17
+		id = TBIDC("new"); 
+	else if (upper_key == 18) // SDL_SCANCODE_O = 18
+		id = TBIDC("open");
+	else if (upper_key == 22) // SDL_SCANCODE_S = 22
+		id = TBIDC("save");
+	else if (upper_key == 26) // SDL_SCANCODE_W = 26
+		id = TBIDC("close");
+	else if (special_key == TB_KEY_PAGE_UP)
+		id = TBIDC("prev_doc");
+	else if (special_key == TB_KEY_PAGE_DOWN)
+		id = TBIDC("next_doc");
+	else
+		return false;
 
+	TBWidgetEvent ev(EVENT_TYPE_SHORTCUT);
+	ev.modifierkeys = modifierkeys;
+	ev.ref_id = id;
+	return TBWidget::focused_widget->InvokeEvent(ev);
+}
 bool TBWidget::InvokeKey(int key, SPECIAL_KEY special_key, MODIFIER_KEYS modifierkeys, bool down)
 {
+	if (InvokeShortcut(key, special_key, modifierkeys, down))
+		return true;
 	bool handled = false;
 	if (focused_widget)
 	{

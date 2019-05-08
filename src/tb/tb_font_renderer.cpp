@@ -116,6 +116,7 @@ TBFontGlyph::TBFontGlyph(const TBID &hash_id, UCS4 cp)
 	, cp(cp)
 	, frag(nullptr)
 	, has_rgb(false)
+	, failed(false)
 {
 }
 
@@ -125,7 +126,7 @@ TBFontGlyphCache::TBFontGlyphCache()
 {
 	// Only use one map for the font face. The glyph cache will start forgetting
 	// glyphs that haven't been used for a while if the map gets full.
-	m_frag_manager.SetNumMapsLimit(1);
+	//m_frag_manager.SetNumMapsLimit(1);
 	m_frag_manager.SetDefaultMapSize(TB_GLYPH_CACHE_WIDTH, TB_GLYPH_CACHE_HEIGHT);
 
 	g_renderer->AddListener(this);
@@ -141,11 +142,12 @@ TBFontGlyph *TBFontGlyphCache::GetGlyph(const TBID &hash_id, UCS4 cp)
 	if (TBFontGlyph *glyph = m_glyphs.Get(hash_id))
 	{
 		// Move the glyph to the end of m_all_rendered_glyphs so we maintain LRU (oldest first)
-		if (m_all_rendered_glyphs.ContainsLink(glyph))
+		//zhouhe
+		/*if (m_all_rendered_glyphs.ContainsLink(glyph))
 		{
 			m_all_rendered_glyphs.Remove(glyph);
 			m_all_rendered_glyphs.AddLast(glyph);
-		}
+		}*/
 		return glyph;
 	}
 	return nullptr;
@@ -300,7 +302,7 @@ TBFontGlyph *TBFontFace::CreateAndCacheGlyph(const TBID &hash_id, UCS4 cp)
 
 void TBFontFace::RenderGlyph(TBFontGlyph *glyph)
 {
-	assert(!glyph->frag);
+	assert(!glyph->frag && !glyph->failed);
 	TBFontGlyphData glyph_data;
 	if (m_font_renderer->RenderGlyph(&glyph_data, glyph->cp))
 	{
@@ -314,7 +316,7 @@ void TBFontFace::RenderGlyph(TBFontGlyph *glyph)
 		{
 			if (m_temp_buffer.Reserve(result_glyph_data->w * result_glyph_data->h * sizeof(uint32)))
 			{
-				glyph_dsta_src = (uint32 *) m_temp_buffer.GetData();
+				glyph_dsta_src = (uint32 *)m_temp_buffer.GetData();
 				for (int y = 0; y < result_glyph_data->h; y++)
 					for (int x = 0; x < result_glyph_data->w; x++)
 					{
@@ -333,11 +335,13 @@ void TBFontFace::RenderGlyph(TBFontGlyph *glyph)
 		{
 			glyph->has_rgb = result_glyph_data->rgb;
 			m_glyph_cache->CreateFragment(glyph, result_glyph_data->w, result_glyph_data->h,
-										result_glyph_data->stride, glyph_dsta_src);
+				result_glyph_data->stride, glyph_dsta_src);
 		}
 
 		delete effect_glyph_data;
 	}
+	else
+		glyph->failed = true;
 #ifdef TB_RUNTIME_DEBUG_INFO
 	//char glyph_str[9];
 	//int len = utf8::encode(cp, glyph_str);
@@ -359,7 +363,7 @@ TBFontGlyph *TBFontFace::GetGlyph(UCS4 cp, bool render_if_needed)
 	TBFontGlyph *glyph = m_glyph_cache->GetGlyph(hash_id, cp);
 	if (!glyph)
 		glyph = CreateAndCacheGlyph(hash_id, cp);
-	if (glyph && !glyph->frag && render_if_needed)
+	if (glyph && !glyph->frag && !glyph->failed && render_if_needed)
 		RenderGlyph(glyph);
 	return glyph;
 }

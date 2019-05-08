@@ -76,10 +76,11 @@ class TBFontGlyph : public TBLinkOf<TBFontGlyph>
 public:
 	TBFontGlyph(const TBID &hash_id, UCS4 cp);
 	TBID hash_id;
-	UCS4 cp;
+	UCS4 cp : 30;
+	unsigned int has_rgb : 1;				///< if true, drawing should ignore text color.
+	unsigned int failed : 1;
 	TBGlyphMetrics metrics;		///< The glyph metrics.
 	TBBitmapFragment *frag;		///< The bitmap fragment, or nullptr if missing.
-	bool has_rgb;				///< if true, drawing should ignore text color.
 };
 
 /** TBFontGlyphCache caches glyphs for font faces.

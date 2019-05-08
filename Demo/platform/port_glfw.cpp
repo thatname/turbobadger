@@ -400,7 +400,7 @@ bool AppBackendGLFW::Init(App *app)
 	}
 	SetBackend(mainWindow, this);
     glfwMakeContextCurrent(mainWindow);
-
+	glfwSwapInterval(0);
 	// Ensure we can capture the escape key being pressed below
 	//glfwSetInputMode(mainWindow, GLFW_STICKY_KEYS, GL_TRUE);
 	//glfwSetInputMode(mainWindow, GLFW_SYSTEM_KEYS, GL_TRUE);
@@ -521,9 +521,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetCurrentDirectory(buf.GetData());
 
 	// Crank up windows timer resolution (it's awfully low res normally). Note: This affects battery time!
-    timeBeginPeriod(1);
+   // timeBeginPeriod(1);
 	bool success = port_main();
-	timeEndPeriod(1);
+	//timeEndPeriod(1);
 	return success ? 0 : 1;
 }
 
